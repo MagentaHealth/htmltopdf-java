@@ -5,9 +5,9 @@ Access to wkhtmltopdf is performed via JNA, exposed through a Java-friendly laye
 
 This fork:
 - Upgrades wkhtmltopdf version to 0.12.6
-- adds ARM support for Linux
 - Upgrades to JNA 5.12.1 as previous versions could not detect aarch64
 - drops 32-bit support entirely
+- Supports Windows, MacOS, Debian bullseye, Ubuntu focal and jammy and related
 
 ## Get it
 
@@ -26,7 +26,7 @@ Maven:
 </repositories>
 
 <dependency>
-  <groupId>com.github.MagentaHealth</groupId>
+  <groupId>com.github.phc007</groupId>
   <artifactId>htmltopdf-java</artifactId>
   <version>1.0.9.7</version>
 </dependency>
@@ -34,31 +34,39 @@ Maven:
 
 ## Getting started
 
-The following examples should be sufficient to get you started, however there
-are many more options discoverable by looking into the methods of `HtmlToPdf` and `HtmlToPdfObject`.
+The following examples should be sufficient to get you started.
+
+#### Saving a webpage from URL as a PDF file
+
+While default settings will serve in most cases, you will need to enable local file access to save PDF to file.
+There are many more options discoverable by looking into the methods of `HtmlToPdf` and `HtmlToPdfObject`.
+
+```java
+HashMap<String, String> htmlToPdfSettings = new HashMap<String, String>();
+htmlToPdfSettings.put("load.blockLocalFileAccess", "false");
+boolean success = HtmlToPdf.create()
+	.object(HtmlToPdfObject.forUrl("https://github.com/phc007/htmltopdf-java", htmlToPdfSettings))
+	.convert("/path/to/file.pdf");
+```
 
 #### Saving HTML as a PDF file
 
 ```java
+HashMap<String, String> htmlToPdfSettings = new HashMap<String, String>();
+htmlToPdfSettings.put("load.blockLocalFileAccess", "false");
 boolean success = HtmlToPdf.create()
-    .object(HtmlToPdfObject.forHtml("<p><em>Apples</em>, not oranges</p>"))
-    .convert("/path/to/file.pdf");
-```
-
-#### Saving a webpage from URL as a PDF file
-
-```java
-boolean success = HtmlToPdf.create()
-    .object(HtmlToPdfObject.forUrl("https://github.com/wooio/htmltopdf-java"))
+    .object(HtmlToPdfObject.forHtml("<p><em>Apples</em>, not oranges</p>", htmlToPdfSettings))
     .convert("/path/to/file.pdf");
 ```
 
 #### Saving multiple objects as a PDF file
 
 ```java
+HashMap<String, String> htmlToPdfSettings = new HashMap<String, String>();
+htmlToPdfSettings.put("load.blockLocalFileAccess", "false");
 boolean success = HtmlToPdf.create()
-    .object(HtmlToPdfObject.forUrl("https://github.com/wooio/htmltopdf-java"))
-    .object(HtmlToPdfObject.forHtml("<p>This is the second object...</p>"))
+    .object(HtmlToPdfObject.forUrl("https://github.com/phc007/htmltopdf-java", htmlToPdfSettings))
+    .object(HtmlToPdfObject.forHtml("<p>This is the second object...</p>", htmlToPdfSettings))
     // ...
     .convert("/path/to/file.pdf");
 ```
@@ -71,7 +79,7 @@ as an HTTP response or adding it as an email attachment
 ```java
 HtmlToPdf htmlToPdf = HtmlToPdf.create()
     // ...
-    .object(HtmlToPdfObject.forUrl("https://github.com/wooio/htmltopdf-java"));
+    .object(HtmlToPdfObject.forUrl("https://github.com/phc007/htmltopdf-java"));
 
 try (InputStream in = htmlToPdf.convert()) {
     // "in" has PDF bytes loaded
@@ -107,6 +115,11 @@ It might be worth checking that the following packages are installed:
 - libssl1.0
 - freetype
 - fontconfig
+
+```
+apt-get -qq -y --no-install-recommends install\
+ ca-certificates fontconfig libc6 libfreetype6 libjpeg62-turbo libpng16-16 libssl1.1 libstdc++6 libx11-6 libxcb1 libxext6 libxrender1 xfonts-75dpi xfonts-base zlib1g
+```
 
 ## Developer Notes
 
