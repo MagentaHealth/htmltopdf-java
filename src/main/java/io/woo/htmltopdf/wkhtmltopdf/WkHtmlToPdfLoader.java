@@ -76,7 +76,11 @@ class WkHtmlToPdfLoader {
 
             String id = osReleaseProperties.getProperty("ID");
             String versionCodename = osReleaseProperties.getProperty("VERSION_CODENAME");
-
+			if ( osReleaseProperties.containsKey("UBUNTU_CODENAME") ) {
+				id = "ubuntu";
+				versionCodename = osReleaseProperties.getProperty("UBUNTU_CODENAME");
+			}
+			
             libPath += "." + id;
             libPath += "." + versionCodename;
             libPath += Platform.isARM() ? ".arm64" : ".amd64";
